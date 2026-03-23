@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>DeepLearning.ai Clone Interface Prototype</title>    
+    <script>
+      (function () {
+        const redirect = new URLSearchParams(window.location.search).get("p");
+        if (!redirect) return;
+
+        const normalized = redirect.startsWith("/") ? redirect : "/" + redirect;
+        const hash = window.location.hash || "";
+        const newUrl =
+          window.location.origin +
+          window.location.pathname.replace(/\/$/, "") +
+          normalized +
+          hash;
+
+        window.history.replaceState(null, "", newUrl);
+      })();
+    </script>
+    <!-- THIS IS THE START OF A COMMENT BLOCK, BLOCK TO BE DELETED: Google Fonts here, example:
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+
+</html>
