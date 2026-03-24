@@ -383,6 +383,7 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
   const [runningCellId, setRunningCellId] = useState<string | null>(null);
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const [isRuntimeLoading, setIsRuntimeLoading] = useState(false);
+  const [isRunningAllCells, setIsRunningAllCells] = useState(false);
   const [copiedCellId, setCopiedCellId] = useState<string | null>(null);
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
@@ -405,6 +406,7 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
     setOutputByCell({});
     setRunningCellId(null);
     setRuntimeError(null);
+    setIsRunningAllCells(false);
     setCopiedCellId(null);
   }, [cells]);
 
@@ -462,7 +464,7 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
     }, 0);
   };
 
-  const runCodeCell = async (cellId: string) => {
+  const executeCodeCell = async (cellId: string) => {
     const code = editableCodeByCell[cellId] ?? "";
     const parsedCell = parseInstallDirectives(code);
     const runnableCode = parsedCell.runnableCode;
@@ -472,14 +474,16 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
         ...prev,
         [cellId]: { text: "This cell is empty.", images: [] },
       }));
-      return;
+      return true;
     }
 
     setRunningCellId(cellId);
     setRuntimeError(null);
 
     try {
-      setIsRuntimeLoading(true);
+      if (!pyodideRuntimePromise) {
+        setIsRuntimeLoading(true);
+      }
       const pyodide = await getPyodideRuntime();
       const installation = await installPackages(pyodide, parsedCell.packages);
       const installSummary = formatInstallSummary(
@@ -495,7 +499,7 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
           ...prev,
           [cellId]: { text: onlyInstallMessage, images: [] },
         }));
-        return;
+        return true;
       }
 
       pyodide.globals.set("__cell_code", runnableCode);
@@ -555,6 +559,7 @@ json.dumps({"text": _output, "images": _images})
           images: parsedResult.images ?? [],
         },
       }));
+      return true;
     } catch (error) {
       const message =
         error instanceof Error
@@ -566,9 +571,32 @@ json.dumps({"text": _output, "images": _images})
         ...prev,
         [cellId]: { text: `Runtime error: ${message}`, images: [] },
       }));
+      return false;
     } finally {
       setIsRuntimeLoading(false);
       setRunningCellId(null);
+    }
+  };
+
+  const runCodeCell = async (cellId: string) => {
+    await executeCodeCell(cellId);
+  };
+
+  const runAllCodeCells = async () => {
+    if (isRunningAllCells || codeCellIds.length === 0) return;
+
+    setIsRunningAllCells(true);
+    setRuntimeError(null);
+
+    try {
+      for (const cellId of codeCellIds) {
+        const succeeded = await executeCodeCell(cellId);
+        if (!succeeded) {
+          break;
+        }
+      }
+    } finally {
+      setIsRunningAllCells(false);
     }
   };
 
@@ -582,7 +610,24 @@ json.dumps({"text": _output, "images": _images})
               Colab-style practice area for lightweight browser execution.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
+            <button
+              onClick={() => void runAllCodeCells()}
+              disabled={isRunningAllCells || Boolean(runningCellId)}
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isRunningAllCells ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Running all cells
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3" />
+                  Run all code cells
+                </>
+              )}
+            </button>
             <span className="px-2.5 py-1 rounded-full bg-[#e8f0fe] text-[#1967d2] font-medium">
               Browser runtime
             </span>
@@ -590,20 +635,6 @@ json.dumps({"text": _output, "images": _images})
               Python cells
             </span>
           </div>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs text-[#5f6368]">
-          <span className="px-2 py-1 rounded-md bg-[#f1f3f4]">
-            Use <code># install: numpy pandas</code>
-          </span>
-          <span className="px-2 py-1 rounded-md bg-[#f1f3f4]">
-            Or <code>!pip install numpy</code>
-          </span>
-          <span className="px-2 py-1 rounded-md bg-[#fff8e1] text-[#8a5a00]">
-            Heavy GPU training should move to Colab
-          </span>
-          <span className="px-2 py-1 rounded-md bg-[#eef4ff] text-[#1f4db8]">
-            Shift + Enter runs the current cell and moves to the next one
-          </span>
         </div>
       </div>
 
@@ -651,7 +682,7 @@ json.dumps({"text": _output, "images": _images})
               <div className="flex flex-col items-center pt-5 text-[#5f6368]">
                 <button
                   onClick={() => runCodeCell(cell.id)}
-                  disabled={isRunning}
+                  disabled={isRunning || isRunningAllCells}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dce3] bg-white text-[#1967d2] shadow-sm transition-colors hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
                   title="Run cell"
                 >
@@ -701,7 +732,7 @@ json.dumps({"text": _output, "images": _images})
                     </button>
                     <button
                       onClick={() => runCodeCell(cell.id)}
-                      disabled={isRunning}
+                      disabled={isRunning || isRunningAllCells}
                       className="rounded-md border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isRunning ? (
@@ -786,14 +817,14 @@ json.dumps({"text": _output, "images": _images})
         })}
       </div>
 
-      <div className="px-4 py-3 border-t border-[#dadce0] bg-white text-xs text-[#5f6368]">
+      <div className="px-4 py-1.5 border-t border-[#dadce0] bg-white text-[11px] text-[#5f6368]">
         {isRuntimeLoading ? (
           <span className="inline-flex items-center gap-1">
             <Loader2 className="w-3 h-3 animate-spin" />
             Initializing Python runtime...
           </span>
         ) : (
-          "Python runtime executes directly in your browser."
+          " "
         )}
       </div>
     </div>

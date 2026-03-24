@@ -1,4 +1,4 @@
-import { Play, Volume2, Maximize2, Settings } from "lucide-react";
+import { Maximize2, Play, Settings, Volume2 } from "lucide-react";
 import { useState } from "react";
 
 interface VideoPlayerProps {
@@ -16,9 +16,7 @@ export default function VideoPlayer({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full">
-      {/* Video Container */}
       <div className="relative bg-black aspect-video flex items-center justify-center group overflow-hidden">
-        {/* YouTube Embed */}
         <iframe
           width="100%"
           height="100%"
@@ -30,7 +28,6 @@ export default function VideoPlayer({
           className="w-full h-full"
         />
 
-        {/* Overlay Controls (shown on hover when not playing) */}
         {!isPlaying && (
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
             <button
@@ -42,27 +39,21 @@ export default function VideoPlayer({
           </div>
         )}
 
-        {/* Duration Badge */}
         <div className="absolute bottom-3 right-3 text-xs font-semibold text-white bg-black/70 px-2 py-1 rounded">
           {duration}
         </div>
       </div>
 
-      {/* Video Info */}
       <div className="p-4 border-b border-gray-200">
-        <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2">
-          {title}
-        </h3>
+        <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2">{title}</h3>
         <p className="text-xs text-gray-600">Duration: {duration}</p>
       </div>
 
-      {/* Video Controls and Info */}
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div className="space-y-4">
-          {/* Learning Objectives */}
           <div>
             <h4 className="font-semibold text-gray-900 text-sm mb-2">
-              What You'll Learn
+              What You&apos;ll Learn
             </h4>
             <ul className="text-xs text-gray-600 space-y-1.5">
               <li className="flex gap-2">
@@ -84,7 +75,6 @@ export default function VideoPlayer({
             </ul>
           </div>
 
-          {/* Video Controls */}
           <div className="pt-2 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-white rounded transition-colors">
@@ -102,9 +92,8 @@ export default function VideoPlayer({
             </div>
           </div>
 
-          {/* Transcript Button */}
           <button className="w-full py-2 px-3 bg-white border border-gray-200 text-gray-900 text-xs font-medium rounded hover:bg-gray-100 transition-colors">
-            📄 Show Transcript
+            Show Transcript
           </button>
         </div>
       </div>
