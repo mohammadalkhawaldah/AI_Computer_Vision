@@ -772,10 +772,10 @@ json.dumps({"text": _output, "images": _images})
                           focusNextCodeCell(cell.id);
                         }
                       }}
-                      className="w-full overflow-hidden rounded-xl border border-[#d7dee8] bg-white px-4 py-3 font-mono text-[14px] text-[#b42318] shadow-inner focus:border-[#9cb6ff] focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
+                      className="w-full overflow-hidden rounded-xl border border-[#d7dee8] bg-white px-4 py-3 font-mono text-[17px] text-[#b42318] shadow-inner focus:border-[#9cb6ff] focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
                       rows={Math.max(cellCode.split("\n").length, 1)}
                       spellCheck={false}
-                      style={{ lineHeight: "1.75" }}
+                      style={{ lineHeight: "1.9" }}
                     />
                   </div>
                 </div>
@@ -788,7 +788,7 @@ json.dumps({"text": _output, "images": _images})
                     </span>
                   </div>
                   <div className="overflow-hidden rounded-xl border border-[#d7dee8] bg-white shadow-inner">
-                    <pre className="min-h-16 whitespace-pre-wrap p-3 font-mono text-xs leading-6 text-[#1f2937]">
+                    <pre className="min-h-16 whitespace-pre-wrap p-3 font-mono text-[15px] leading-8 text-[#1f2937]">
                       {output?.text || "Run this cell to see output."}
                     </pre>
                     {output?.images && output.images.length > 0 ? (
