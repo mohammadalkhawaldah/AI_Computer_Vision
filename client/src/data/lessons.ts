@@ -14,6 +14,10 @@ export {
 } from "@/data/lessonSchema";
 
 import { chapter2Part1Cells, chapter2Part1VideoId } from "@/data/chapter2Part1Cells";
+import {
+  chapter3ImageClassificationCells,
+  chapter3ImageClassificationVideoId,
+} from "@/data/chapter3ImageClassificationCells";
 import { codeCell, textCell, type Course, type Lesson, type LessonCell } from "@/data/lessonSchema";
 
 export const coursesData: Course[] = [
@@ -34,6 +38,20 @@ export const coursesData: Course[] = [
         cells: chapter2Part1Cells,
         completed: false,
         order: 1,
+      },
+      {
+        id: 3,
+        title: "Chapter 3 - Image Classification",
+        description:
+          "Imported from your ant and bee classification notebook and integrated into the lesson platform.",
+        duration: "90 mins",
+        videoId: chapter3ImageClassificationVideoId,
+        colabUrl:
+          "https://colab.research.google.com/drive/1CoV-OnYcc_ac3VTo-Kq7tzoKX_ceSYyh#scrollTo=NpJAKuT8xuXI",
+        notebookCode: "",
+        cells: chapter3ImageClassificationCells,
+        completed: false,
+        order: 2,
       },
     ],
   },
