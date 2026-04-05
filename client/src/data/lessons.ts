@@ -18,6 +18,10 @@ import {
   chapter3ImageClassificationCells,
   chapter3ImageClassificationVideoId,
 } from "@/data/chapter3ImageClassificationCells";
+import {
+  chapter4ObjectDetectionCells,
+  chapter4ObjectDetectionVideoId,
+} from "@/data/chapter4ObjectDetectionCells";
 import { codeCell, textCell, type Course, type Lesson, type LessonCell } from "@/data/lessonSchema";
 
 export const coursesData: Course[] = [
@@ -52,6 +56,20 @@ export const coursesData: Course[] = [
         cells: chapter3ImageClassificationCells,
         completed: false,
         order: 2,
+      },
+      {
+        id: 4,
+        title: "Chapter 4 - Object Detection",
+        description:
+          "Imported from your rock-paper-scissors object detection notebook and integrated into the lesson platform.",
+        duration: "90 mins",
+        videoId: chapter4ObjectDetectionVideoId,
+        colabUrl:
+          "https://colab.research.google.com/drive/16f8iSQMKT7MhHc9q0wzjZV-FpC2cWWwn",
+        notebookCode: "",
+        cells: chapter4ObjectDetectionCells,
+        completed: false,
+        order: 3,
       },
     ],
   },
