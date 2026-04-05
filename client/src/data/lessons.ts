@@ -65,7 +65,7 @@ export const coursesData: Course[] = [
         duration: "90 mins",
         videoId: chapter4ObjectDetectionVideoId,
         colabUrl:
-          "https://colab.research.google.com/drive/16f8iSQMKT7MhHc9q0wzjZV-FpC2cWWwn",
+          "https://colab.research.google.com/github/mohammadalkhawaldah/AI_Computer_Vision/blob/main/Chapter4_Object_Detection.ipynb",
         notebookCode: "",
         cells: chapter4ObjectDetectionCells,
         completed: false,
