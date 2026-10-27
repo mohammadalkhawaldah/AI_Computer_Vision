@@ -6,265 +6,304 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { coursesData, Lesson } from "@/data/lessons";
+import { coursesData, getLessonCells, type Lesson } from "@/data/lessons";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
-  PanelLeftClose,
-  PanelLeftOpen,
+  PanelLeft,
+  PanelRight,
+  RotateCcw,
+  Maximize2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-
-interface ClassroomLayoutProps {
-  showLessonPager?: boolean;
-}
+import { useEffect, useRef, useState } from "react";
+import type { ImperativePanelGroupHandle } from "react-resizable-panels";
 
 export default function ClassroomLayout({
   showLessonPager = false,
-}: ClassroomLayoutProps) {
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarHidden, setSidebarHidden] = useState(false);
-
+}: {
+  showLessonPager?: boolean;
+}) {
   const course = coursesData[0];
+  const [currentLesson, setCurrentLesson] = useState(course.lessons[0]);
+  const [showCourse, setShowCourse] = useState(true);
+  const [showDetails, setShowDetails] = useState(true);
+  const [mobilePanel, setMobilePanel] = useState<"course" | "details" | null>(
+    null
+  );
+  const [desktop, setDesktop] = useState(
+    () => window.matchMedia("(min-width: 1100px)").matches
+  );
+  const panelGroup = useRef<ImperativePanelGroupHandle>(null);
   const { isLessonComplete, markLessonComplete, markLessonIncomplete } =
     useLessonProgress(course.lessons);
+  const currentIndex = course.lessons.findIndex(
+    lesson => lesson.id === currentLesson.id
+  );
+  const cells = getLessonCells(currentLesson);
+  const completed = isLessonComplete(currentLesson.id);
 
   useEffect(() => {
-    if (course.lessons.length > 0 && !selectedLesson) {
-      setSelectedLesson(course.lessons[0]);
-    }
-  }, [course.lessons, selectedLesson]);
+    const query = window.matchMedia("(min-width: 1100px)");
+    const update = () => setDesktop(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
-  const handleSelectLesson = (lesson: Lesson) => {
-    setSelectedLesson(lesson);
+  const selectLesson = (lesson: Lesson) => {
+    setCurrentLesson(lesson);
+    setMobilePanel(null);
   };
-
-  const handleMarkComplete = () => {
-    if (!selectedLesson) return;
-
-    if (isLessonComplete(selectedLesson.id)) {
-      markLessonIncomplete(selectedLesson.id);
-    } else {
-      markLessonComplete(selectedLesson.id);
+  const toggleComplete = () =>
+    completed
+      ? markLessonIncomplete(currentLesson.id)
+      : markLessonComplete(currentLesson.id);
+  const resetLayout = () => {
+    if (showCourse && showDetails) panelGroup.current?.setLayout([21, 56, 23]);
+    else {
+      setShowCourse(true);
+      setShowDetails(true);
+      requestAnimationFrame(() => panelGroup.current?.setLayout([21, 56, 23]));
     }
   };
-
-  const currentLesson = selectedLesson || course.lessons[0];
-  const currentIndex = course.lessons.findIndex(
-    (lesson) => lesson.id === currentLesson.id
+  const courseContent = (
+    <Sidebar
+      lessons={course.lessons}
+      selectedLesson={currentLesson}
+      onSelectLesson={selectLesson}
+      isLessonComplete={isLessonComplete}
+    />
   );
-  const completedCount = course.lessons.filter((lesson) =>
-    isLessonComplete(lesson.id)
-  ).length;
-  const progressPercentage = Math.round(
-    (completedCount / Math.max(course.lessons.length, 1)) * 100
+  const details = (
+    <aside className="lesson-details">
+      <div className="panel-heading">
+        <span className="eyebrow">YOUR LEARNING COMPANION</span>
+        <h2>Lesson guide</h2>
+      </div>
+      <VideoPlayer
+        videoId={currentLesson.videoId}
+        title={currentLesson.title}
+        duration={currentLesson.duration}
+      />
+      <div className="guide-section">
+        <span className="eyebrow">IN THIS NOTEBOOK</span>
+        <h3>{cells.filter(c => c.type === "code").length} code exercises</h3>
+        <p>Read each explanation, then work through the code in order.</p>
+      </div>
+      <div className="guide-section">
+        <span className="eyebrow">YOUR WORKSPACE</span>
+        <h3>Make room to explore.</h3>
+        <p>
+          Drag the dividers to resize each panel. Hide the side panels for a
+          focused reading view. Your panel widths are saved on this browser.
+        </p>
+        <p className="keyboard-tip">
+          Keyboard: focus a divider and use the arrow keys.
+        </p>
+      </div>
+      <button
+        className={`lab-button complete-button ${completed ? "is-complete" : ""}`}
+        onClick={toggleComplete}
+      >
+        <Check size={16} />
+        {completed ? "Completed · mark incomplete" : "Mark lesson complete"}
+      </button>
+    </aside>
   );
-
-  const handleNextLesson = () => {
-    if (currentIndex < course.lessons.length - 1) {
-      handleSelectLesson(course.lessons[currentIndex + 1]);
-    }
-  };
-
-  const handlePreviousLesson = () => {
-    if (currentIndex > 0) {
-      handleSelectLesson(course.lessons[currentIndex - 1]);
-    }
-  };
+  const notebook = (
+    <main className="lesson-main">
+      <div className="lesson-heading">
+        <div className="lesson-heading-top">
+          <span className="eyebrow">
+            COMPUTER VISION / CHAPTER {currentLesson.id}
+          </span>
+          <span className="lesson-duration">{currentLesson.duration}</span>
+        </div>
+        <h1>{currentLesson.title.replace(/^Chapter\s+\d+\s*-\s*/, "")}</h1>
+        <div className="lesson-heading-bottom">
+          <p>Learn the concepts. Experiment with code.</p>
+          {currentLesson.colabUrl && (
+            <a
+              className="lab-button colab-button"
+              href={currentLesson.colabUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Colab <ExternalLink size={14} />
+            </a>
+          )}
+        </div>
+      </div>
+      <div className="notebook-container">
+        <LessonNotebook lesson={currentLesson} />
+      </div>
+      {showLessonPager && (
+        <footer className="lesson-pager">
+          <button
+            className="lab-button"
+            disabled={currentIndex === 0}
+            onClick={() => selectLesson(course.lessons[currentIndex - 1])}
+          >
+            <ChevronLeft size={15} />
+            Previous
+          </button>
+          <span>
+            {String(currentIndex + 1).padStart(2, "0")}{" "}
+            <span className="muted">
+              / {String(course.lessons.length).padStart(2, "0")} lessons
+            </span>
+          </span>
+          <button
+            className="lab-button"
+            disabled={currentIndex === course.lessons.length - 1}
+            onClick={() => selectLesson(course.lessons[currentIndex + 1])}
+          >
+            Next lesson
+            <ChevronRight size={15} />
+          </button>
+        </footer>
+      )}
+    </main>
+  );
 
   return (
-    <>
-      <div className="flex-1 overflow-hidden">
-        <div className="hidden lg:block h-full relative">
-          {sidebarHidden ? (
-            <button
-              onClick={() => setSidebarHidden(false)}
-              className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-              Show Course Content
-            </button>
-          ) : null}
-
-          <ResizablePanelGroup
-            direction="horizontal"
-            autoSaveId={
-              sidebarHidden
-                ? `classroom-layout-${showLessonPager ? "lesson" : "home"}-collapsed`
-                : `classroom-layout-${showLessonPager ? "lesson" : "home"}`
+    <div className="classroom-workspace">
+      <div className="workspace-toolbar">
+        <div className="workspace-label">
+          <span className="status-dot" />
+          Learning workspace
+          <span className="toolbar-hint">Drag dividers to resize</span>
+        </div>
+        <div className="workspace-actions">
+          <button
+            className="lab-button"
+            aria-pressed={desktop ? showCourse : mobilePanel === "course"}
+            onClick={() =>
+              desktop
+                ? setShowCourse(!showCourse)
+                : setMobilePanel(mobilePanel === "course" ? null : "course")
             }
           >
-            {!sidebarHidden ? (
+            <PanelLeft size={15} />
+            Course
+          </button>
+          <button
+            className="lab-button"
+            aria-pressed={desktop ? showDetails : mobilePanel === "details"}
+            onClick={() =>
+              desktop
+                ? setShowDetails(!showDetails)
+                : setMobilePanel(mobilePanel === "details" ? null : "details")
+            }
+          >
+            <PanelRight size={15} />
+            Guide
+          </button>
+          {desktop && (
+            <>
+              <button
+                className="lab-button icon-button"
+                title="Focus mode"
+                aria-label="Focus mode"
+                aria-pressed={!showCourse && !showDetails}
+                onClick={() => {
+                  const focus = showCourse || showDetails;
+                  setShowCourse(!focus);
+                  setShowDetails(!focus);
+                }}
+              >
+                <Maximize2 size={15} />
+              </button>
+              <button
+                className="lab-button icon-button"
+                title="Reset panel widths"
+                aria-label="Reset panel widths"
+                onClick={resetLayout}
+              >
+                <RotateCcw size={15} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="workspace-panels">
+        {desktop ? (
+          <ResizablePanelGroup
+            ref={panelGroup}
+            direction="horizontal"
+            autoSaveId={`lab-v2-${showCourse}-${showDetails}`}
+          >
+            {showCourse && (
               <>
-                <ResizablePanel defaultSize={20} minSize={14} className="min-w-0">
-                  <Sidebar
-                    lessons={course.lessons}
-                    selectedLesson={currentLesson}
-                    onSelectLesson={handleSelectLesson}
-                    isLessonComplete={isLessonComplete}
-                    showLessonOverview
-                  />
+                <ResizablePanel
+                  id="course"
+                  order={1}
+                  defaultSize={21}
+                  minSize={16}
+                  maxSize={34}
+                >
+                  {courseContent}
                 </ResizablePanel>
-
-                <ResizableHandle withHandle />
-              </>
-            ) : null}
-
-            <ResizablePanel
-              defaultSize={sidebarHidden ? 68 : 52}
-              minSize={28}
-              className="min-w-0"
-            >
-              <div className="h-full overflow-hidden flex flex-col min-h-0">
-                <div className="px-6 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {currentLesson.title}
-                    </h2>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                      {currentLesson.description}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 pt-0.5">
-                    {!sidebarHidden ? (
-                      <button
-                        onClick={() => setSidebarHidden(true)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-white transition-colors whitespace-nowrap"
-                      >
-                        <PanelLeftClose className="w-4 h-4" />
-                        Hide Course Content
-                      </button>
-                    ) : null}
-                    {currentLesson.colabUrl ? (
-                      <a
-                        href={currentLesson.colabUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-700 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Open in Colab
-                      </a>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-hidden p-6 min-h-0">
-                  <div className="h-full min-h-0 overflow-hidden">
-                    <LessonNotebook lesson={currentLesson} />
-                  </div>
-                </div>
-
-                {showLessonPager ? (
-                  <div className="px-6 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                    <button
-                      onClick={handlePreviousLesson}
-                      disabled={currentIndex === 0}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Previous
-                    </button>
-
-                    <div className="text-xs text-gray-600">
-                      Lesson {currentIndex + 1} of {course.lessons.length}
-                    </div>
-
-                    <button
-                      onClick={handleNextLesson}
-                      disabled={currentIndex === course.lessons.length - 1}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle withHandle />
-
-            <ResizablePanel
-              defaultSize={sidebarHidden ? 32 : 28}
-              minSize={18}
-              className="min-w-0"
-            >
-              <div className="h-full overflow-y-auto p-6">
-                <VideoPlayer
-                  videoId={currentLesson.videoId}
-                  title={currentLesson.title}
-                  duration={currentLesson.duration}
+                <ResizableHandle
+                  className="lab-divider"
+                  withHandle
+                  aria-label="Resize course panel"
                 />
-              </div>
+              </>
+            )}
+            <ResizablePanel
+              id="notebook"
+              order={2}
+              defaultSize={showCourse && showDetails ? 56 : 77}
+              minSize={35}
+            >
+              {notebook}
             </ResizablePanel>
+            {showDetails && (
+              <>
+                <ResizableHandle
+                  className="lab-divider"
+                  withHandle
+                  aria-label="Resize lesson guide"
+                />
+                <ResizablePanel
+                  id="guide"
+                  order={3}
+                  defaultSize={23}
+                  minSize={17}
+                  maxSize={36}
+                >
+                  {details}
+                </ResizablePanel>
+              </>
+            )}
           </ResizablePanelGroup>
-        </div>
-
-        <div className="lg:hidden h-full flex overflow-hidden">
-          <div
-            className={`${
-              sidebarOpen ? "block" : "hidden"
-            } w-80 border-r border-gray-200 overflow-hidden`}
-          >
-            <Sidebar
-              lessons={course.lessons}
-              selectedLesson={currentLesson}
-              onSelectLesson={handleSelectLesson}
-              isLessonComplete={isLessonComplete}
-            />
-          </div>
-
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            <div className="px-6 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {currentLesson.title}
-                </h2>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                  {currentLesson.description}
-                </p>
-              </div>
+        ) : (
+          <>
+            <div
+              className={
+                mobilePanel ? "mobile-notebook-hidden" : "mobile-notebook"
+              }
+            >
+              {notebook}
             </div>
-
-            <div className="flex-1 overflow-hidden p-4 min-h-0">
-              <div className="h-full min-h-0 overflow-hidden flex flex-col gap-4">
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  <LessonNotebook lesson={currentLesson} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            {mobilePanel && (
+              <section className="mobile-panel">
+                <button
+                  className="lab-button mobile-back"
+                  onClick={() => setMobilePanel(null)}
+                >
+                  <ChevronLeft size={16} />
+                  Back to notebook
+                </button>
+                {mobilePanel === "course" ? courseContent : details}
+              </section>
+            )}
+          </>
+        )}
       </div>
-
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-2">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          {sidebarOpen ? "Hide" : "Show"} Content
-        </button>
-        {currentLesson.colabUrl ? (
-          <a
-            href={currentLesson.colabUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 px-3 py-2 text-center text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-          >
-            Open Colab
-          </a>
-        ) : null}
-        <button
-          onClick={handleMarkComplete}
-          className="flex-1 px-3 py-2 text-xs font-medium bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:shadow-lg transition-all"
-        >
-          {isLessonComplete(currentLesson.id) ? "Done" : "Mark Complete"}
-        </button>
-      </div>
-    </>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ export default function LessonPage() {
   const course = coursesData[0];
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-dvh bg-white flex flex-col overflow-hidden">
       <Header platformName={course.title} />
       <ClassroomLayout showLessonPager />
     </div>

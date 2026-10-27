@@ -601,13 +601,13 @@ json.dumps({"text": _output, "images": _images})
   };
 
   return (
-    <div className="bg-[#f8f9fa] rounded-xl border border-[#dadce0] shadow-sm overflow-hidden h-full flex flex-col">
+    <div className="lab-notebook bg-[#f8f9fa] rounded-xl border border-[#dadce0] shadow-sm overflow-hidden h-full flex flex-col">
       <div className="px-4 py-3 border-b border-[#dadce0] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="font-semibold text-[#202124] text-sm">Notebook</h3>
             <p className="text-xs text-[#5f6368] mt-1">
-              Colab-style practice area for lightweight browser execution.
+              Read, edit, and experiment. Use Colab for model training.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
@@ -629,10 +629,10 @@ json.dumps({"text": _output, "images": _images})
               )}
             </button>
             <span className="px-2.5 py-1 rounded-full bg-[#e8f0fe] text-[#1967d2] font-medium">
-              Browser runtime
+              Python workspace
             </span>
             <span className="px-2.5 py-1 rounded-full bg-[#f1f3f4] text-[#5f6368] font-medium">
-              Python cells
+              {cells.length} cells
             </span>
           </div>
         </div>
@@ -756,6 +756,7 @@ json.dumps({"text": _output, "images": _images})
                   </div>
                   <div className="p-3">
                     <textarea
+                      aria-label={`Code: ${cell.title}`}
                       ref={(element) => {
                         textareaRefs.current[cell.id] = element;
                         if (element) {

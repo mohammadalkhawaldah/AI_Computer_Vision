@@ -1,6 +1,774 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Classroom identity and workspace layout */
+:root {
+  --lab-ink: #242b36;
+  --lab-muted: #68717c;
+  --lab-line: #e4e5e7;
+  --lab-red: #bb343b;
+}
+body {
+  font-family: "DM Sans", sans-serif;
+}
+.lab-header {
+  height: 78px;
+  flex-shrink: 0;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--lab-line);
+  background: white;
+  gap: 20px;
+}
+.lab-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--lab-ink);
+}
+.lab-brand strong {
+  font:
+    800 19px "Manrope",
+    sans-serif;
+  letter-spacing: -0.65px;
+  display: block;
+}
+.lab-brand small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  color: var(--lab-muted);
+  margin-top: 5px;
+}
+.lab-mark {
+  background: var(--lab-red);
+  color: white;
+  width: 41px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px 12px 12px 3px;
+}
+.lab-navigation {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  height: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lab-muted);
+}
+.lab-navigation a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  border-bottom: 2px solid transparent;
+}
+.lab-navigation a[aria-current="page"] {
+  color: var(--lab-red);
+  border-color: var(--lab-red);
+}
+.lab-navigation a:hover {
+  color: var(--lab-red);
+}
+.classroom-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--lab-ink);
+  background: #f6f6f4;
+}
+.workspace-toolbar {
+  min-height: 53px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 25px;
+  gap: 12px;
+  border-bottom: 1px solid var(--lab-line);
+  background: #fcfcfb;
+}
+.workspace-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #56816e;
+  border-radius: 50%;
+}
+.toolbar-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--lab-muted);
+  margin-left: 16px;
+  border-left: 1px solid #ddd;
+  padding-left: 20px;
+}
+.workspace-actions {
+  display: flex;
+  gap: 6px;
+}
+.lab-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--lab-line);
+  border-radius: 7px;
+  padding: 7px 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+  background: white;
+  color: #4b5360;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  flex-shrink: 0;
+}
+.lab-button:hover {
+  background: #f5f2f0;
+  border-color: #c6c4c1;
+}
+.lab-button[aria-pressed="true"] {
+  background: #f5e9e8;
+  color: #9e3038;
+  border-color: #e6c7c8;
+}
+.lab-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.lab-button:focus-visible,
+.lab-navigation a:focus-visible,
+.lab-brand:focus-visible,
+.course-lesson:focus-visible {
+  outline: 2px solid var(--lab-red);
+  outline-offset: 3px;
+}
+.icon-button {
+  padding: 7px 9px;
+}
+.workspace-panels {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.lab-divider[data-slot] {
+  width: 10px;
+  flex-shrink: 0;
+  background: #f1f1ef;
+  border-left: 1px solid var(--lab-line);
+  border-right: 1px solid var(--lab-line);
+  transition: background 0.15s;
+}
+.lab-divider[data-slot]:hover,
+.lab-divider[data-slot][data-resize-handle-active],
+.lab-divider[data-slot]:focus-visible {
+  background: #e5c1c3;
+}
+.lab-divider[data-slot] > div {
+  width: 10px;
+  height: 37px;
+  background: white;
+  border: 1px solid #d3d3d1;
+  border-radius: 5px;
+  color: #8b7274;
+}
+.lab-divider[data-slot] svg {
+  width: 12px;
+  height: 18px;
+}
+.course-sidebar {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  background: #fbfbf9;
+  display: flex;
+  flex-direction: column;
+}
+.panel-heading {
+  padding: 27px 22px 18px;
+}
+.eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+  color: #737b85;
+  line-height: 1.6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-heading h2 {
+  font:
+    800 21px "Manrope",
+    sans-serif;
+  letter-spacing: -0.7px;
+  margin: 8px 0;
+}
+.panel-heading p {
+  color: var(--lab-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.course-progress {
+  padding: 3px 22px 24px;
+  border-bottom: 1px solid var(--lab-line);
+}
+.course-progress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.course-progress strong {
+  color: var(--lab-red);
+}
+.progress-track {
+  height: 4px;
+  margin-top: 12px;
+  background: #e8e7e4;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.progress-track > span {
+  display: block;
+  height: 100%;
+  background: var(--lab-red);
+  transition: width 0.3s;
+}
+.course-progress p {
+  font-size: 10px;
+  color: var(--lab-muted);
+  margin-top: 9px;
+}
+.course-lessons {
+  padding: 22px 12px;
+  flex: 1;
+}
+.course-lessons > .eyebrow {
+  margin: 0 10px 14px;
+}
+.course-lesson {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 16px 11px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  position: relative;
+  margin: 4px 0;
+}
+.course-lesson:hover {
+  background: #f0f0ed;
+}
+.course-lesson.is-active {
+  background: #fff;
+  border-color: #e7d5d4;
+  box-shadow: 0 3px 12px #34202306;
+}
+.course-lesson.is-active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 20px;
+  bottom: 20px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--lab-red);
+}
+.chapter-number {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 29px;
+  height: 31px;
+  border-radius: 6px;
+  background: #efefec;
+  color: #777b81;
+  font:
+    600 11px "Manrope",
+    sans-serif;
+}
+.is-active .chapter-number {
+  background: #f7e9e9;
+  color: var(--lab-red);
+}
+.chapter-number.is-done {
+  background: #e4eee8;
+  color: #3a7257;
+}
+.chapter-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.chapter-kicker {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: var(--lab-muted);
+}
+.chapter-info strong {
+  font-size: 12px;
+  line-height: 1.65;
+  font-weight: 600;
+}
+.chapter-time {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--lab-muted);
+}
+.lesson-arrow {
+  flex-shrink: 0;
+  color: var(--lab-red);
+  margin-left: auto;
+}
+.sidebar-note {
+  margin: 20px;
+  border-top: 1px solid var(--lab-line);
+  padding-top: 20px;
+  display: flex;
+  gap: 12px;
+  color: #778075;
+}
+.sidebar-note strong {
+  color: #4a534c;
+  font-size: 11px;
+}
+.sidebar-note p {
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 4px;
+}
+.lesson-main {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+.lesson-heading {
+  padding: 25px 28px 20px;
+  flex-shrink: 0;
+  background:
+    radial-gradient(ellipse at 95% 0%, #f9eeeb, transparent 65%), #fff;
+  border-bottom: 1px solid var(--lab-line);
+}
+.lesson-heading-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lesson-heading-top .eyebrow {
+  color: var(--lab-red);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+.lesson-duration {
+  color: var(--lab-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.lesson-heading h1 {
+  font:
+    800 clamp(21px, 2vw, 30px)/1.35 "Manrope",
+    sans-serif;
+  letter-spacing: -0.9px;
+  margin: 12px 0 13px;
+  max-width: 700px;
+}
+.lesson-heading-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lesson-heading-bottom p {
+  font-size: 12px;
+  color: var(--lab-muted);
+}
+.colab-button {
+  color: var(--lab-red);
+  border-color: #e9cccc;
+  background: #fffafa;
+}
+.notebook-container {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.lesson-pager {
+  padding: 12px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-top: 1px solid var(--lab-line);
+  background: #fff;
+  font-size: 11px;
+  gap: 8px;
+}
+.muted {
+  color: var(--lab-muted);
+}
+.lesson-details {
+  padding: 0 20px 24px;
+  height: 100%;
+  overflow-y: auto;
+  background: #fbfbf9;
+}
+.lesson-details .panel-heading {
+  padding-left: 0;
+  padding-right: 0;
+}
+.lesson-video {
+  overflow: hidden;
+  border: 1px solid var(--lab-line);
+  border-radius: 10px;
+  background: #fff;
+}
+.video-frame {
+  aspect-ratio: 16/9;
+  background: #252a31;
+}
+.video-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.video-caption {
+  padding: 17px;
+}
+.video-caption h3 {
+  font:
+    700 13px/1.6 "Manrope",
+    sans-serif;
+  margin: 8px 0;
+}
+.video-caption p {
+  font-size: 10px;
+  color: var(--lab-muted);
+}
+.notebook-art {
+  height: 153px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+  color: #f4d7cf;
+  background:
+    radial-gradient(circle at 80% 15%, #725255, transparent 75%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      #ffffff08 24px
+    ),
+    #33343b;
+}
+.vision-box {
+  border: 1px solid #d4b4ac66;
+  padding: 14px;
+  outline: 1px solid #d4b4ac33;
+  outline-offset: 6px;
+}
+.notebook-art > span {
+  letter-spacing: 2px;
+  font-size: 8px;
+}
+.guide-section {
+  padding: 23px 0;
+  border-bottom: 1px solid var(--lab-line);
+}
+.guide-section h3 {
+  font:
+    700 14px "Manrope",
+    sans-serif;
+  margin: 9px 0;
+}
+.guide-section p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--lab-muted);
+}
+.guide-section .keyboard-tip {
+  font-size: 10px;
+  margin-top: 10px;
+}
+.complete-button {
+  width: 100%;
+  margin-top: 22px;
+  background: var(--lab-red);
+  color: white;
+  border-color: var(--lab-red);
+  padding: 10px;
+  white-space: normal;
+}
+.complete-button:hover {
+  background: #a62b32;
+  color: white;
+}
+.complete-button.is-complete {
+  color: #35644e;
+  border-color: #bdcfbf;
+  background: #e9f1ec;
+}
+.mobile-notebook {
+  height: 100%;
+}
+.mobile-notebook-hidden {
+  display: none;
+}
+.mobile-panel {
+  height: 100%;
+  overflow-y: auto;
+  background: #fbfbf9;
+}
+.mobile-panel .lesson-details,
+.mobile-panel .course-sidebar {
+  height: auto;
+  min-height: 0;
+}
+.mobile-back {
+  margin: 15px 20px 0;
+}
+.lab-notebook {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.lab-notebook > div:first-child {
+  padding: 13px 24px;
+  background: #fcfcfb;
+  border-color: var(--lab-line);
+}
+.lab-notebook > div:first-child h3 {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+}
+.lab-notebook > div:first-child p {
+  font-size: 10px;
+}
+.lab-notebook > .overflow-y-auto {
+  padding: 25px;
+  background: #fafaf8;
+}
+.lab-notebook section {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+}
+.lab-notebook section > div:last-child {
+  border-radius: 9px;
+  box-shadow: 0 2px 4px #242b3603;
+  border-color: #e2e3e5;
+  background: white;
+}
+.lab-notebook section > div:last-child > div:first-child {
+  background: #fff;
+  border-color: #ededeb;
+  padding: 14px 20px;
+}
+.lab-notebook section h4 {
+  font-size: 13px;
+  margin-top: 5px;
+}
+.lab-notebook section p {
+  line-height: 1.85;
+}
+.lab-notebook section h1,
+.lab-notebook section h2,
+.lab-notebook section h3 {
+  font-family: "Manrope", sans-serif;
+  letter-spacing: -0.5px;
+}
+.lab-notebook section > div:first-child > div {
+  width: 28px;
+  height: 28px;
+  background: #eeefed;
+  color: #737c72;
+  border-color: #dfe2dd;
+  font-size: 9px;
+}
+.lab-notebook section > div:first-child > button {
+  width: 29px;
+  height: 29px;
+}
+.lab-notebook section > div:first-child > span {
+  font-size: 8px;
+}
+.lab-notebook textarea {
+  font-size: 14px;
+  line-height: 1.8 !important;
+  color: #344456;
+  border-radius: 5px;
+  box-shadow: none;
+  resize: vertical;
+  min-height: 100px;
+  overflow: auto;
+}
+.lab-notebook section .grid {
+  grid-template-columns: 45px minmax(0, 1fr);
+}
+.lab-notebook section .grid > div:first-child {
+  font-size: 9px;
+  padding: 14px 4px;
+  color: #777;
+  background: #f5f6f5;
+}
+.lab-notebook pre {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.lab-notebook > div:last-child {
+  min-height: 8px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lesson-heading {
+    animation: lesson-enter 0.3s ease-out;
+  }
+  @keyframes lesson-enter {
+    from {
+      opacity: 0.4;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+@media (max-width: 1099px) {
+  .toolbar-hint {
+    display: none;
+  }
+  .lesson-heading h1 {
+    font-size: 25px;
+  }
+  .mobile-panel .course-lessons {
+    max-width: 650px;
+    width: 100%;
+  }
+  .mobile-panel .lesson-details {
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  .mobile-panel .panel-heading h2 {
+    font-size: 25px;
+  }
+}
+@media (max-width: 600px) {
+  .lab-notebook > div:first-child > div {
+    gap: 8px;
+  }
+  .lab-notebook > div:first-child > div > div:last-child > span {
+    display: none;
+  }
+  .lab-header {
+    height: 66px;
+    padding: 0 15px;
+    gap: 8px;
+  }
+  .lab-brand {
+    gap: 8px;
+  }
+  .lab-brand strong {
+    font-size: 14px;
+  }
+  .lab-brand small {
+    font-size: 6px;
+    letter-spacing: 0.9px;
+  }
+  .lab-mark {
+    width: 31px;
+    height: 35px;
+  }
+  .lab-navigation {
+    gap: 13px;
+    font-size: 10px;
+  }
+  .lab-navigation .course-home {
+    display: none;
+  }
+  .workspace-toolbar {
+    padding: 9px 14px;
+  }
+  .workspace-label {
+    font-size: 10px;
+  }
+  .workspace-actions {
+    gap: 4px;
+  }
+  .workspace-actions .lab-button {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+  .lesson-heading {
+    padding: 19px 17px 16px;
+  }
+  .lesson-heading h1 {
+    font-size: 23px;
+  }
+  .lesson-heading-bottom p {
+    font-size: 10px;
+  }
+  .colab-button {
+    font-size: 11px;
+  }
+  .lesson-heading-top .eyebrow {
+    font-size: 8px;
+  }
+  .lab-notebook > div:first-child {
+    padding: 12px 16px;
+  }
+  .lab-notebook > .overflow-y-auto {
+    padding: 15px 10px;
+  }
+  .lab-notebook section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-notebook section > div:first-child {
+    display: none;
+  }
+  .lab-notebook section .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-notebook section .grid > div:first-child {
+    display: none;
+  }
+  .lab-notebook textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+  .lesson-pager {
+    padding: 10px 13px;
+    font-size: 10px;
+  }
+  .lesson-pager .lab-button {
+    font-size: 10px;
+    padding: 7px;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -197,11 +965,13 @@
 
   /* Animation for copy notification */
   @keyframes fadeInOut {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0;
       transform: translateY(10px);
     }
-    10%, 90% {
+    10%,
+    90% {
       opacity: 1;
       transform: translateY(0);
     }
