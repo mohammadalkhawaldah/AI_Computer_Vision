@@ -1,5 +1,5 @@
 import { getLessonCells, type Lesson } from "@/data/lessons";
-import { Copy, Eraser, Loader2, Play, RotateCcw } from "lucide-react";
+import { Copy, Eraser, ExternalLink, Loader2, Play, RotateCcw } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 interface LessonNotebookProps {
@@ -371,6 +371,7 @@ function renderTextCellContent(content: string) {
 
 export default function LessonNotebook({ lesson }: LessonNotebookProps) {
   const cells = useMemo(() => getLessonCells(lesson), [lesson]);
+  const requiresColab = lesson.id >= 3 && Boolean(lesson.colabUrl);
   const codeCellIds = useMemo(
     () => cells.filter((cell) => cell.type === "code").map((cell) => cell.id),
     [cells]
@@ -465,6 +466,8 @@ export default function LessonNotebook({ lesson }: LessonNotebookProps) {
   };
 
   const executeCodeCell = async (cellId: string) => {
+    if (requiresColab) return false;
+
     const code = editableCodeByCell[cellId] ?? "";
     const parsedCell = parseInstallDirectives(code);
     const runnableCode = parsedCell.runnableCode;
@@ -583,7 +586,7 @@ json.dumps({"text": _output, "images": _images})
   };
 
   const runAllCodeCells = async () => {
-    if (isRunningAllCells || codeCellIds.length === 0) return;
+    if (requiresColab || isRunningAllCells || codeCellIds.length === 0) return;
 
     setIsRunningAllCells(true);
     setRuntimeError(null);
@@ -608,25 +611,21 @@ json.dumps({"text": _output, "images": _images})
             <h3 className="font-semibold text-[#202124] text-sm">Notebook</h3>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
-            <button
-              onClick={() => void runAllCodeCells()}
-              disabled={isRunningAllCells || Boolean(runningCellId)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isRunningAllCells ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  Running all cells
-                </>
-              ) : (
-                <>
-                  <Play className="w-3 h-3" />
-                  Run all code cells
-                </>
-              )}
-            </button>
+            {requiresColab ? (
+              <a href={lesson.colabUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff]">
+                <ExternalLink className="w-3 h-3" /> Run in Colab
+              </a>
+            ) : (
+              <button
+                onClick={() => void runAllCodeCells()}
+                disabled={isRunningAllCells || Boolean(runningCellId)}
+                className="inline-flex items-center gap-2 rounded-full border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isRunningAllCells ? <><Loader2 className="w-3 h-3 animate-spin" />Running all cells</> : <><Play className="w-3 h-3" />Run all code cells</>}
+              </button>
+            )}
             <span className="px-2.5 py-1 rounded-full bg-[#e8f0fe] text-[#1967d2] font-medium">
-              Python workspace
+              {requiresColab ? "Google Colab / GPU" : "Python workspace"}
             </span>
             <span className="px-2.5 py-1 rounded-full bg-[#f1f3f4] text-[#5f6368] font-medium">
               {cells.length} cells
@@ -634,6 +633,12 @@ json.dumps({"text": _output, "images": _images})
           </div>
         </div>
       </div>
+
+      {requiresColab && (
+        <div className="mx-4 mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+          This chapter uses Google Drive and YOLO, which need a Colab runtime. Open the linked notebook to run these cells.
+        </div>
+      )}
 
       {runtimeError && (
         <div className="mx-4 mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -677,18 +682,20 @@ json.dumps({"text": _output, "images": _images})
           return (
             <section key={cell.id} className="grid grid-cols-[56px_minmax(0,1fr)] gap-3">
               <div className="flex flex-col items-center pt-5 text-[#5f6368]">
-                <button
-                  onClick={() => runCodeCell(cell.id)}
-                  disabled={isRunning || isRunningAllCells}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dce3] bg-white text-[#1967d2] shadow-sm transition-colors hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
-                  title="Run cell"
-                >
-                  {isRunning ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Play className="w-4 h-4 ml-0.5" />
-                  )}
-                </button>
+                {requiresColab ? (
+                  <a href={lesson.colabUrl} target="_blank" rel="noopener noreferrer" aria-label={`Run ${cell.title} in Colab`} title="Run in Google Colab" className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dce3] bg-white text-[#1967d2] shadow-sm transition-colors hover:bg-[#eef4ff]">
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => runCodeCell(cell.id)}
+                    disabled={isRunning || isRunningAllCells}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dce3] bg-white text-[#1967d2] shadow-sm transition-colors hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
+                    title="Run cell"
+                  >
+                    {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 ml-0.5" />}
+                  </button>
+                )}
                 <span className="mt-3 font-mono text-[11px] text-[#6b7280]">In [{index + 1}]</span>
               </div>
               <div className="overflow-hidden rounded-[22px] border border-[#d9dee7] bg-white shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
@@ -727,23 +734,19 @@ json.dumps({"text": _output, "images": _images})
                     >
                       <Eraser className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => runCodeCell(cell.id)}
-                      disabled={isRunning || isRunningAllCells}
-                      className="rounded-md border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isRunning ? (
-                        <span className="inline-flex items-center gap-1">
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                          Running
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1">
-                          <Play className="w-3 h-3" />
-                          Run
-                        </span>
-                      )}
-                    </button>
+                    {requiresColab ? (
+                      <a href={lesson.colabUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff]">
+                        <ExternalLink className="w-3 h-3" /> Run in Colab
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => runCodeCell(cell.id)}
+                        disabled={isRunning || isRunningAllCells}
+                        className="rounded-md border border-[#c9d2e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1f4db8] transition-all hover:bg-[#eef4ff] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isRunning ? <span className="inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />Running</span> : <span className="inline-flex items-center gap-1"><Play className="w-3 h-3" />Run</span>}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -766,8 +769,10 @@ json.dumps({"text": _output, "images": _images})
                       onKeyDown={(event) => {
                         if (event.key === "Enter" && event.shiftKey) {
                           event.preventDefault();
-                          void runCodeCell(cell.id);
-                          focusNextCodeCell(cell.id);
+                          if (!requiresColab) {
+                            void runCodeCell(cell.id);
+                            focusNextCodeCell(cell.id);
+                          }
                         }
                       }}
                       className="w-full overflow-hidden rounded-xl border border-[#d7dee8] bg-white px-4 py-3 font-mono text-[17px] text-[#b42318] shadow-inner focus:border-[#9cb6ff] focus:outline-none focus:ring-2 focus:ring-[#d9e5ff]"
