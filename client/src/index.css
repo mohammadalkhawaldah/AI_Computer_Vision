@@ -12,7 +12,7 @@ body {
   font-family: "DM Sans", sans-serif;
 }
 .lab-header {
-  height: 78px;
+  height: 64px;
   flex-shrink: 0;
   padding: 0 28px;
   display: flex;
@@ -84,12 +84,12 @@ body {
   background: #f6f6f4;
 }
 .workspace-toolbar {
-  min-height: 53px;
+  min-height: 43px;
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 9px 25px;
+  padding: 4px 25px;
   gap: 12px;
   border-bottom: 1px solid var(--lab-line);
   background: #fcfcfb;
@@ -364,16 +364,21 @@ body {
   background: white;
 }
 .lesson-heading {
-  padding: 25px 28px 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 16px;
+  row-gap: 4px;
+  padding: 10px 22px;
   flex-shrink: 0;
   background:
     radial-gradient(ellipse at 95% 0%, #f9eeeb, transparent 65%), #fff;
   border-bottom: 1px solid var(--lab-line);
 }
 .lesson-heading-top {
+  grid-column: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 .lesson-heading-top .eyebrow {
@@ -387,23 +392,22 @@ body {
   white-space: nowrap;
 }
 .lesson-heading h1 {
+  grid-column: 1;
   font:
-    800 clamp(21px, 2vw, 30px)/1.35 "Manrope",
+    800 20px/1.35 "Manrope",
     sans-serif;
   letter-spacing: -0.9px;
-  margin: 12px 0 13px;
+  margin: 0;
   max-width: 700px;
 }
 .lesson-heading-bottom {
+  grid-column: 2;
+  grid-row: 1 / 3;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-}
-.lesson-heading-bottom p {
-  font-size: 12px;
-  color: var(--lab-muted);
 }
 .colab-button {
   color: var(--lab-red);
@@ -558,7 +562,7 @@ body {
   box-shadow: none;
 }
 .lab-notebook > div:first-child {
-  padding: 13px 24px;
+  padding: 7px 22px;
   background: #fcfcfb;
   border-color: var(--lab-line);
 }
@@ -570,7 +574,7 @@ body {
   font-size: 10px;
 }
 .lab-notebook > .overflow-y-auto {
-  padding: 25px;
+  padding: 14px 22px;
   background: #fafaf8;
 }
 .lab-notebook section {
@@ -662,7 +666,7 @@ body {
     display: none;
   }
   .lesson-heading h1 {
-    font-size: 25px;
+    font-size: 20px;
   }
   .mobile-panel .course-lessons {
     max-width: 650px;
@@ -684,7 +688,7 @@ body {
     display: none;
   }
   .lab-header {
-    height: 66px;
+    height: 58px;
     padding: 0 15px;
     gap: 8px;
   }
@@ -710,7 +714,7 @@ body {
     display: none;
   }
   .workspace-toolbar {
-    padding: 9px 14px;
+    padding: 4px 14px;
   }
   .workspace-label {
     font-size: 10px;
@@ -723,13 +727,11 @@ body {
     font-size: 10px;
   }
   .lesson-heading {
-    padding: 19px 17px 16px;
+    padding: 10px 14px;
+    column-gap: 10px;
   }
   .lesson-heading h1 {
-    font-size: 23px;
-  }
-  .lesson-heading-bottom p {
-    font-size: 10px;
+    font-size: 17px;
   }
   .colab-button {
     font-size: 11px;
@@ -738,7 +740,7 @@ body {
     font-size: 8px;
   }
   .lab-notebook > div:first-child {
-    padding: 12px 16px;
+    padding: 7px 14px;
   }
   .lab-notebook > .overflow-y-auto {
     padding: 15px 10px;

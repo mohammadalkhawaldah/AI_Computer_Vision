@@ -117,13 +117,12 @@ export default function ClassroomLayout({
       <div className="lesson-heading">
         <div className="lesson-heading-top">
           <span className="eyebrow">
-            COMPUTER VISION / CHAPTER {currentLesson.id}
+            CHAPTER {currentLesson.id}
           </span>
           <span className="lesson-duration">{currentLesson.duration}</span>
         </div>
         <h1>{currentLesson.title.replace(/^Chapter\s+\d+\s*-\s*/, "")}</h1>
         <div className="lesson-heading-bottom">
-          <p>Learn the concepts. Experiment with code.</p>
           {currentLesson.colabUrl && (
             <a
               className="lab-button colab-button"

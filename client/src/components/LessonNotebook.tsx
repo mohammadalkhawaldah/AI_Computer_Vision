@@ -606,9 +606,6 @@ json.dumps({"text": _output, "images": _images})
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="font-semibold text-[#202124] text-sm">Notebook</h3>
-            <p className="text-xs text-[#5f6368] mt-1">
-              Read, edit, and experiment. Use Colab for model training.
-            </p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
             <button
